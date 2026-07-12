@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmotiGo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f4f8;
+            transition: background 0.5s ease, color 0.5s ease;
+            padding: 20px;
+        }
+
+        /* Modern Split Container */
+        .app-container {
+            display: flex;
+            width: 100%;
+            max-width: 950px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Left Side: Profile & Moods */
+        .main-panel {
+            flex: 1.2;
+            padding: 40px;
+            border-right: 1px solid #e1e8ed;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Right Side: Account Settings & Recs */
+        .settings-panel {
+            flex: 0.8;
+            padding: 40px;
+            background: #fafbfc;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header Styles */
+        .app-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a202c;
+            letter-spacing: -0.5px;
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #cbd5e1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            object-fit: cover;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .profile-info h2 {
+            font-size: 1.3rem;
+            color: #2d3748;
+        }
+
+        /* Dynamic Graphic Element Box */
+        .mood-graphic-box {
+            width: 100%;
+            height: 120px;
+            border-radius: 16px;
+            background: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.5rem;
+            transition: all 0.5s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .about-section h3, .settings-panel h3, .mood-section h3, .recommendations-section h3 {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .about-section p {
+            color: #4a5568;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Modern Pills/Buttons */
+        .mood-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mood-btn {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            color: white;
+        }
+
+        .mood-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Brighter UI Theme Accent Colors */
+        .btn-serene { background: #FFD700; color: #2d3748; }     
+        .btn-adventurous { background: #FF5722; }                
+        .btn-energetic { background: #FF007F; }                  
+        .btn-relaxed { background: #00E5FF; color: #2d3748; }    
+
+        /* Management Action Buttons */
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            color: #4a5568;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: #edf2f7;
+            color: #1a202c;
+            border-color: #cbd5e1;
+        }
+
+        /* Recommendations styling */
+        .recommendations-section {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rec-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 5px solid #cbd5e1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .rec-card h4 {
+            font-size: 1rem;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .rec-card p {
+            font-size: 0.85rem;
+            color: #718096;
+            line-height: 1.4;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .main-panel {
+                border-right: none;
+                border-bottom: 1px solid #e1e8ed;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Left Panel: Content & Experience -->
+        <div class="main-panel">
+            <div class="app-title">EmotiGo</div>
+            
+            <div class="profile-card">
+                <div class="avatar-wrapper">
+                    <div id="profileAvatar" class="avatar">J</div>
+                </div>
+                <div class="profile-info">
+                    <h2 id="profileName">Jordan</h2>
+                </div>
+            </div>
+
+            <div id="graphicBox" class="mood-graphic-box">✨</div>
+
+            <div class="about-section">
+                <h3>About <span id="aboutName">Jordan</span></h3>
+                <p>My name is <span id="textName">Jordan</span>, and I guide your inner journey. I believe that your selected mood is your compass for discovery and joy. This app is designed to uplift your travel with a rich color journey.</p>
+            </div>
+
+            <div class="mood-section">
+                <h3>Mood Options</h3>
+                <div class="mood-options">
+                    <button class="mood-btn btn-serene" onclick="changeMood('serene', '#FFFDF0', '☀️', '#FFD700')">☀️ Serene</button>
+                    <button class="mood-btn btn-adventurous" onclick="changeMood('adventurous', '#FFF5F0', '🌋', '#FF5722')">🌋 Adventurous</button>
+                    <button class="mood-btn btn-energetic" onclick="changeMood('energetic', '#FFF0F5', '⚡', '#FF007F')">⚡ Energetic</button>
+                    <button class="mood-btn btn-relaxed" onclick="changeMood('relaxed', '#F0FDFF', '⚓', '#00E5FF')">⚓ Relaxed</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Settings & Dynamic Recs -->
+        <div class="settings-panel">
+            <div class="recommendations-section">
+                <h3>Travel Companion Recommendations</h3>
+                <div id="recContainer">
+                    <div class="rec-card" style="border-left-color: #cbd5e1;">
+                        <h4>Choose a Mood</h4>
+                        <p>Select a travel mood on the left panel to receive tailored itinerary recommendations!</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 20px;">Account Info</h3>
+            <div style="background: #edf2f7; padding: 12px; border-radius: 12px; font-weight: 600; color: #4a5568; font-size: 0.9rem;">
+                Account Management
+            </div>
+            
+            <input type="file" id="imageInput" accept="image/*" onchange="uploadPhoto(event)">
+            <button class="action-btn" onclick="document.getElementById('imageInput').click()">
+                <span>Change Profile Picture</span> <span>📷</span>
+            </button>
+            
+            <button class="action-btn" onclick="updateName()">
+                <span>Change Name</span> <span>✏️</span>
+            </button>
+            
+            <button class="action-btn" onclick="resetPassword()">
+                <span>Forgot Password</span> <span>🔑</span>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Static Data for travel recommendations based on mood keys
+        const recommendationsData = {
+            serene: [
+                { title: "Kirstenbosch Botanical Gardens", desc: "Walk along the canopy trails, enjoy clean air, and unwind near the mountain slopes." },
+                { title: "Quiet Coastal Spa Resort", desc: "A peaceful weekend retreat focused on sound therapy, meditation loops, and oceanside relaxation." }
+            ],
+            adventurous: [
+                { title: "Table Mountain Cableway & Abseiling", desc: "Step off the edge of a cliff face at 1,000 meters above sea level for pure adrenaline." },
+                { title: "Cederberg Wilderness Hiking Trails", desc: "Explore multi-day routes through rugged sandstone rock formations and ancient caves." }
+            ],
+            energetic: [
+                { title: "Vibrant Waterfront Night Market", desc: "Immerse yourself in live music, food pop-ups, and packed urban social hubs." },
+                { title: "Quad Biking in Atlantis Dunes", desc: "Power through massive white sand dunes on an all-terrain vehicle track." }
+            ],
+            relaxed: [
+                { title: "Boulders Beach Penguin Colony", desc: "Stroll along wooden boardwalks and relax by wind-sheltered granite boulder bays." },
+                { title: "West Coast Lagoon Houseboat Cruise", desc: "Float along calm blue waters with no active schedules, just scenery and slow living." }
+            ]
+        };
+
+        function changeMood(moodKey, backgroundColor, emoji, graphicBoxBg) {
+            document.body.style.background = backgroundColor;
+            const graphicBox = document.getElementById('graphicBox');
+            graphicBox.innerText = emoji;
+            graphicBox.style.background = graphicBoxBg;
+            
+            if(emoji === '☀️') {
+                graphicBox.style.color = '#2d3748';
+            } else {
+                graphicBox.style.color = 'white';
+            }
+
+            // DYNAMICALLY RENDER THE RECOMMENDATION CARDS
+            const recContainer = document.getElementById('recContainer');
+            const locations = recommendationsData[moodKey];
+            
+            // Clear out old cards
+            recContainer.innerHTML = '';
+            
+            // Generate new ones using the layout database array
+            locations.forEach(loc => {
+                const card = document.createElement('div');
+                card.className = 'rec-card';
+                card.style.borderLeftColor = graphicBoxBg;
+                card.innerHTML = `
+                    <h4>${loc.title}</h4>
+                    <p>${loc.desc}</p>
+                `;
+                recContainer.appendChild(card);
+            });
+        }
+
+        function updateName() {
+            const newName = prompt("Enter your new name:");
+            if (newName && newName.trim() !== "") {
+                document.getElementById('profileName').innerText = newName;
+                document.getElementById('aboutName').innerText = newName;
+                document.getElementById('textName').innerText = newName;
+                
+                const avatar = document.getElementById('profileAvatar');
+                if (avatar.tagName.toLowerCase() === 'div') {
+                    avatar.innerText = newName.charAt(0).toUpperCase();
+                }
+            }
+        }
+
+        function uploadPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarWrapper = document.querySelector('.avatar-wrapper');
+                    avatarWrapper.innerHTML = `<img id="profileAvatar" src="${e.target.result}" class="avatar" alt="Profile">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetPassword() {
+            const confirmation = prompt("Enter your email address to receive a password reset link:");
+            if (confirmation && confirmation.trim() !== "") {
+                alert("Success! A secure reset token has been dispatched to: " + confirmation);
+            }
+        }
+    </script>
+</body>
+</html>
